@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Calculate taxes on your cryptocurrency transactions with our free Cryptocurrency Tax Calculator. Input purchase price, sale price, quantity, and tax rate to compute capital gains and tax amounts instantly.">
-  <title>Crypto Tax Calculator</title>
+  <title>Cryptocurrency Tax Calculator</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>Crypto Tax Calculator</h1>
+    <h1>Cryptocurrency Tax Calculator</h1>
     <form id="taxForm">
       <label for="purchasePrice">Purchase Price (per unit):</label>
       <input type="number" id="purchasePrice" step="0.01" required>
@@ -36,99 +36,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-/* General Styles */
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f9;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.container {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
-h1 {
-  text-align: center;
-  color: #333;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-input {
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-button {
-  padding: 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-.result {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.result h2 {
-  color: #333;
-}
-
-.result p {
-  font-size: 18px;
-  color: #555;
-}
-document.getElementById('taxForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-
-  // Get input values
-  const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
-  const salePrice = parseFloat(document.getElementById('salePrice').value);
-  const quantity = parseFloat(document.getElementById('quantity').value);
-  const taxRate = parseFloat(document.getElementById('taxRate').value);
-
-  // Validate inputs
-  if (isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity) || isNaN(taxRate)) {
-    alert('Please enter valid numbers.');
-    return;
-  }
-
-  // Calculate capital gain
-  const capitalGain = (salePrice - purchasePrice) * quantity;
-
-  // Calculate tax amount
-  const taxAmount = (capitalGain * taxRate) / 100;
-
-  // Display results
-  document.getElementById('capitalGain').textContent = capitalGain.toFixed(2);
-  document.getElementById('taxAmount').textContent = taxAmount.toFixed(2);
-});
