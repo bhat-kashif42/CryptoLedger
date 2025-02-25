@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculate your cryptocurrency earnings and future values based on hours used per day. Explore low, medium, and high growth scenarios with dynamic charts and fun emojis.">
+  <title>Cryptocurrency Earnings Calculator</title>
+  <!-- <link rel="stylesheet" href="styles.css"> -->
+  
+  <style>
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    
+    .container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+    }
+    
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    
+    form {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+    
+    label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    input {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    .results {
+        margin-top: 20px;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+    
+    th {
+        background-color: #f8f9fa;
+    }
+    
+    .chart-container {
+        margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cryptocurrency Earnings Calculator 💰</h1>
+    <form id="earningsForm">
+      <label for="hoursPerDay">Hours Used Per Day:</label>
+      <input type="number" id="hoursPerDay" step="0.1" required>
+
+      <button type="submit">Calculate Earnings</button>
+    </form>
+
+    <div id="results" class="results">
+      <h2>Results 📊</h2>
+      <table id="earningsTable">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Coins Earned</th>
+            <th>Low Growth (5%)</th>
+            <th>Medium Growth (25%)</th>
+            <th>High Growth (100%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Results will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="earningsChart"></canvas>
+    </div>
+  </div>
+
+  <!-- <script src="script.js"></script> -->
+  <script src="chart.js"></script>
+  
+  <script>
+    document.getElementById('earningsForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+      
+        // Constants
+        const COINS_PER_HOUR = 0.13;
+        const DAYS_PER_MONTH = 30;
+        const CURRENT_PRICE = 100; // Rs per coin
+        const LOW_GROWTH = 0.05;
+        const MEDIUM_GROWTH = 0.25;
+        const HIGH_GROWTH = 1.0;
+      
+        // Get input
+        const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value);
+      
+        // Validate input
+        if (isNaN(hoursPerDay)) {
+          alert('Please enter a valid number for hours used per day.');
+          return;
+        }
+      
+        // Calculate monthly coins
+        const monthlyCoins = hoursPerDay * COINS_PER_HOUR * DAYS_PER_MONTH;
+      
+        // Prepare data for table and chart
+        const years = Array.from({ length: 20 }, (_, i) => i + 1);
+        const tableBody = document.querySelector('#earningsTable tbody');
+        tableBody.innerHTML = ''; // Clear previous results
+      
+        const lowGrowthData = [];
+        const mediumGrowthData = [];
+        const highGrowthData = [];
+      
+        years.forEach((year) => {
+          const totalCoins = monthlyCoins * 12 * year;
+      
+          // Calculate future values using compound interest formula: FV = PV * (1 + r)^n
+          const lowValue = totalCoins * CURRENT_PRICE * Math.pow(1 + LOW_GROWTH, year);
+          const mediumValue = totalCoins * CURRENT_PRICE * Math.pow(1 + MEDIUM_GROWTH, year);
+          const highValue = totalCoins * CURRENT_PRICE * Math.pow(1 + HIGH_GROWTH, year);
+      
+          // Add data to arrays for chart
+          lowGrowthData.push(lowValue);
+          mediumGrowthData.push(mediumValue);
+          highGrowthData.push(highValue);
+      
+          // Add row to table
+          const row = `
+            <tr>
+              <td>${year}</td>
+              <td>${totalCoins.toFixed(2)}</td>
+              <td>₹${lowValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
+              <td>₹${mediumValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
+              <td>₹${highValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      
+        // Render chart
+        renderChart(years, lowGrowthData, mediumGrowthData, highGrowthData);
+      });
+      
+      function renderChart(years, lowData, mediumData, highData) {
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        if (window.earningsChart  instanceof Chart) {
+           window.earningsChart.destroy(); // Destroy previous chart instance
+        }
+        window.earningsChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: years,
+            datasets: [
+              {
+                label: 'Low Growth (5%)',
+                data: lowData,
+                borderColor: '#ff6384',
+                fill: false,
+              },
+              {
+                label: 'Medium Growth (25%)',
+                data: mediumData,
+                borderColor: '#36a2eb',
+                fill: false,
+              },
+              {
+                label: 'High Growth (100%)',
+                data: highData,
+                borderColor: '#4bc0c0',
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Future Value (₹)',
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Years',
+                },
+              },
+            },
+          },
+        });
+      }
+</script>
+</body>
+</html>
+
+
+
+
